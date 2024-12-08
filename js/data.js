@@ -9,86 +9,76 @@ class DataManager {
             this.loadAttributes(),
             this.loadSpells()
         ]);
-        this.populateDropdowns();
     }
 
     async loadAttributes() {
-        const response = await fetch('data/attributes.json');
-        this.attributes = await response.json();
+        try {
+            const response = await fetch('data/attributes.json');
+            if (!response.ok) throw new Error('Failed to load attributes');
+            this.attributes = await response.json();
+        } catch (error) {
+            console.error('Error loading attributes:', error);
+            throw error;
+        }
     }
 
-    populateDropdowns() {
-        // Level dropdown
-        const levelSelect = document.getElementById('level');
-        this.attributes.levels.forEach(level => {
-            const option = document.createElement('option');
-            option.value = level.toLowerCase();
-            option.textContent = level;
-            levelSelect.appendChild(option);
-        });
+    async loadSpells() {
+        try {
+            const levels = ['cantrips', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            this.spells = {};
+            
+            for (const level of levels) {
+                const response = await fetch(`data/grimoire/wizard_${level}.json`);
+                if (!response.ok) throw new Error(`Failed to load spells for level ${level}`);
+                this.spells[level] = await response.json();
+            }
+        } catch (error) {
+            console.error('Error loading spells:', error);
+            throw error;
+        }
+    }
 
-        // School dropdown
-        const schoolSelect = document.getElementById('school');
-        this.attributes.school.forEach(school => {
-            const option = document.createElement('option');
-            option.value = school.toLowerCase();
-            option.textContent = school;
-            schoolSelect.appendChild(option);
-        });
+    findMatchingSpell(params) {
+        const level = params.level === 'none' ? 'cantrips' : params.level;
+        const spellList = this.spells[level] || [];
+        
+        return spellList.filter(spell => 
+            spell.level.toLowerCase() === params.level &&
+            spell.school.toLowerCase() === params.school &&
+            spell.duration.toLowerCase() === params.duration &&
+            spell.range.toLowerCase() === params.range &&
+            spell.area_type.toLowerCase() === params.area &&
+            spell.dtype.toLowerCase() === params.damage &&
+            spell.condition.toLowerCase() === params.condition &&
+            spell.concentration === params.concentration &&
+            spell.ritual === params.ritual
+        ).map(spell => spell.name);
+    }
 
-        // Duration dropdown
-        const durationSelect = document.getElementById('duration');
-        this.attributes.duration.forEach(duration => {
-            const option = document.createElement('option');
-            option.value = duration.toLowerCase();
-            option.textContent = duration;
-            durationSelect.appendChild(option);
-        });
+    getRandomAttributes() {
+        const randomChoice = arr => arr[Math.floor(Math.random() * arr.length)];
+        
+        // Prevent invalid combinations
+        const shape = randomChoice(['polygon', 'quadratic', 'circle', 'cubic', 'golden']);
+        let lineType = randomChoice(['straight', 'centreCircle']);
+        
+        if (lineType === 'straight' && (shape === 'quadratic' || shape === 'cubic')) {
+            shape = 'polygon';
+        }
 
-        // Range dropdown
-        const rangeSelect = document.getElementById('range');
-        this.attributes.range.forEach(range => {
-            const option = document.createElement('option');
-            option.value = range.toLowerCase();
-            option.textContent = range;
-            rangeSelect.appendChild(option);
-        });
-
-        // Area type dropdown
-        const areaSelect = document.getElementById('area');
-        this.attributes.area_types.forEach(area => {
-            const option = document.createElement('option');
-            option.value = area.toLowerCase();
-            option.textContent = area;
-            areaSelect.appendChild(option);
-        });
-
-        // Damage type dropdown
-        const damageSelect = document.getElementById('damage');
-        this.attributes.damage_types.forEach(damage => {
-            const option = document.createElement('option');
-            option.value = damage.toLowerCase();
-            option.textContent = damage;
-            damageSelect.appendChild(option);
-        });
-
-        // Condition dropdown
-        const conditionSelect = document.getElementById('condition');
-        this.attributes.conditions.forEach(condition => {
-            const option = document.createElement('option');
-            option.value = condition.toLowerCase();
-            option.textContent = condition;
-            conditionSelect.appendChild(option);
-        });
-
-        // Set default values
-        levelSelect.value = 'none';
-        schoolSelect.value = 'none';
-        durationSelect.value = 'instantaneous';
-        rangeSelect.value = 'none';
-        areaSelect.value = 'none';
-        damageSelect.value = 'none';
-        conditionSelect.value = 'none';
+        return {
+            level: randomChoice(this.attributes.levels),
+            school: randomChoice(this.attributes.school),
+            duration: randomChoice(this.attributes.duration),
+            range: randomChoice(this.attributes.range),
+            area: randomChoice(this.attributes.area_types),
+            damage: randomChoice(this.attributes.damage_types),
+            condition: randomChoice(this.attributes.conditions),
+            concentration: Math.random() < 0.5,
+            ritual: Math.random() < 0.5,
+            shape: shape,
+            lineType: lineType
+        };
     }
 }
 

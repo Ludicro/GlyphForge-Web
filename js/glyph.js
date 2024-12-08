@@ -6,9 +6,11 @@ class GlyphEngine {
     }
 
     setupCanvas() {
+        // Set canvas size and center the coordinate system
         this.canvas.width = 600;
         this.canvas.height = 600;
         this.ctx.translate(this.canvas.width / 2, this.canvas.height / 2);
+        this.ctx.scale(1, -1); // Flip y-axis to match mathematical coordinates
     }
 
     clearCanvas() {
@@ -34,24 +36,57 @@ class GlyphEngine {
 
     quadratic(n, a = 1, b = 0, c = 0) {
         const points = [];
-        let x = 0;
-        const xValues = [];
-        
-        while (xValues.length < n) {
-            if (xValues.includes(-x)) {
-                xValues.push(-x + 1);
-            } else {
-                xValues.push(-x);
-            }
-            x = xValues[xValues.length - 1];
-        }
+        const xValues = this.generateXValues(n);
+        const scale = 30;
 
         xValues.forEach(x => {
             points.push({
-                x: x * 30,
-                y: (a * x * x + b * x + c) * 30
+                x: x * scale,
+                y: (a * x * x + b * x + c) * scale
             });
         });
+        return points;
+    }
+
+    circle(n, radius = 100, theta0 = 0, theta1 = -Math.PI/2) {
+        const points = [];
+        for (let i = 0; i < n; i++) {
+            const theta = theta0 + (theta1 - theta0) * i / (n - 1);
+            points.push({
+                x: radius * Math.cos(theta),
+                y: radius * Math.sin(theta)
+            });
+        }
+        return points;
+    }
+
+    cubic(n, a = 0.1, b = 0, c = -0.75, d = 0) {
+        const points = [];
+        const scale = 30;
+        const halfN = Math.floor(n/2);
+        
+        for (let i = -halfN; i <= halfN; i++) {
+            points.push({
+                x: i * scale,
+                y: (a * Math.pow(i, 3) + b * Math.pow(i, 2) + c * i + d) * scale
+            });
+        }
+        return points;
+    }
+
+    golden(n, limit = 3 * Math.PI) {
+        const points = [];
+        const goldenRatio = (1 + Math.sqrt(5)) / 2;
+        const scale = 15;
+
+        for (let i = 0; i < n; i++) {
+            const t = (i * limit) / (n - 1);
+            const factor = Math.pow(goldenRatio, (t * goldenRatio) / (2 * Math.PI));
+            points.push({
+                x: Math.cos(t) * factor * scale,
+                y: Math.sin(t) * factor * scale
+            });
+        }
         return points;
     }
 
@@ -73,10 +108,16 @@ class GlyphEngine {
 
         const startAngle = Math.atan2(p1.y - center.y, p1.x - center.x);
         const endAngle = Math.atan2(p2.y - center.y, p2.x - center.x);
+        
+        // Determine the correct arc direction
+        let deltaAngle = endAngle - startAngle;
+        if (deltaAngle > Math.PI) deltaAngle -= 2 * Math.PI;
+        if (deltaAngle < -Math.PI) deltaAngle += 2 * Math.PI;
 
-        for (let i = 0; i <= 50; i++) {
-            const t = i / 50;
-            const angle = startAngle + (endAngle - startAngle) * t;
+        const steps = 50;
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const angle = startAngle + deltaAngle * t;
             points.push({
                 x: center.x + radius * Math.cos(angle),
                 y: center.y + radius * Math.sin(angle)
@@ -85,22 +126,54 @@ class GlyphEngine {
         return points;
     }
 
+    generateXValues(n) {
+        const values = [0];
+        while (values.length < n) {
+            if (values.includes(-values[values.length - 1])) {
+                values.push(-values[values.length - 1] + 1);
+            } else {
+                values.push(-values[values.length - 1]);
+            }
+        }
+        return values;
+    }
+
     drawGlyph(params) {
         this.clearCanvas();
         
-        // Generate base points based on shape type
+        // Generate base points
         let basePoints;
+        const n = 7; // Number of points
+        
         switch (params.shape) {
             case 'polygon':
-                basePoints = this.polygon(7);
+                basePoints = this.polygon(n);
                 break;
             case 'quadratic':
-                basePoints = this.quadratic(7);
+                basePoints = this.quadratic(n);
                 break;
-            // Add other shape types here
+            case 'circle':
+                basePoints = this.circle(n);
+                break;
+            case 'cubic':
+                basePoints = this.cubic(n);
+                break;
+            case 'golden':
+                basePoints = this.golden(n);
+                break;
+            default:
+                basePoints = this.polygon(n);
         }
 
-        // Draw the connections
+        // Draw base points
+        this.ctx.fillStyle = '#333';
+        basePoints.forEach((point, i) => {
+            this.ctx.beginPath();
+            this.ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
+            this.ctx.fill();
+        });
+
+        // Draw connections
         this.ctx.strokeStyle = '#333';
         this.ctx.lineWidth = 2;
 
@@ -115,7 +188,6 @@ class GlyphEngine {
                 linePoints = this.centreCircle(start, end);
             }
 
-            // Draw the line
             this.ctx.beginPath();
             this.ctx.moveTo(linePoints[0].x, linePoints[0].y);
             for (let j = 1; j < linePoints.length; j++) {
@@ -124,7 +196,7 @@ class GlyphEngine {
             this.ctx.stroke();
         }
 
-        // Add ritual and concentration markers if needed
+        // Add markers
         if (params.ritual) {
             this.drawRitualMarker();
         }

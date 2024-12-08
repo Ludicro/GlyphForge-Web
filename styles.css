@@ -4,6 +4,7 @@
     --accent-color: #3498db;
     --text-color: #ecf0f1;
     --border-radius: 4px;
+    --shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 body {
@@ -12,16 +13,20 @@ body {
     padding: 20px;
     background-color: var(--primary-color);
     color: var(--text-color);
+    line-height: 1.6;
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
+    padding: 20px;
 }
 
 h1 {
     text-align: center;
     margin-bottom: 30px;
+    color: var(--accent-color);
+    text-shadow: var(--shadow);
 }
 
 .control-panel {
@@ -29,6 +34,7 @@ h1 {
     padding: 20px;
     border-radius: var(--border-radius);
     margin-bottom: 20px;
+    box-shadow: var(--shadow);
 }
 
 .dropdown-group {
@@ -43,13 +49,18 @@ h1 {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 15px;
     padding-top: 15px;
-    border-top: 1px solid var(--text-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dropdown-container, .checkbox-container {
     display: flex;
     flex-direction: column;
     gap: 5px;
+}
+
+label {
+    font-weight: bold;
+    color: var(--text-color);
 }
 
 select {
@@ -59,6 +70,17 @@ select {
     background-color: var(--primary-color);
     color: var(--text-color);
     width: 100%;
+    cursor: pointer;
+}
+
+select:hover {
+    border-color: #2980b9;
+}
+
+select:focus {
+    outline: none;
+    border-color: #2980b9;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
 }
 
 .button-group {
@@ -69,17 +91,24 @@ select {
 }
 
 button {
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
     border-radius: var(--border-radius);
     background-color: var(--accent-color);
     color: var(--text-color);
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.1s;
+    font-weight: bold;
+    box-shadow: var(--shadow);
 }
 
 button:hover {
     background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(1px);
 }
 
 .display-area {
@@ -87,6 +116,7 @@ button:hover {
     padding: 20px;
     border-radius: var(--border-radius);
     text-align: center;
+    box-shadow: var(--shadow);
 }
 
 #glyphCanvas {
@@ -95,11 +125,22 @@ button:hover {
     margin-bottom: 20px;
     background-color: white;
     border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
 }
 
 #spellName {
     font-size: 1.2em;
     font-weight: bold;
+    color: var(--accent-color);
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius);
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {

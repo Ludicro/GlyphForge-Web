@@ -1,17 +1,79 @@
 class GlyphForgeApp {
     constructor() {
-        this.dataManager = dataManager;
+        this.dataManager = new DataManager();
         this.glyphEngine = new GlyphEngine('glyphCanvas');
-        this.setupEventListeners();
     }
 
     async initialize() {
-        await this.dataManager.initialize();
+        try {
+            // Load data first
+            await this.dataManager.loadAttributes();
+            await this.dataManager.loadSpells();
+            
+            // Populate dropdowns
+            this.populateDropdowns();
+            
+            // Setup event listeners
+            this.setupEventListeners();
+        } catch (error) {
+            console.error('Initialization error:', error);
+        }
+    }
+
+    populateDropdowns() {
+        const dropdownMappings = {
+            'level': this.dataManager.attributes.levels,
+            'school': this.dataManager.attributes.school,
+            'duration': this.dataManager.attributes.duration,
+            'range': this.dataManager.attributes.range,
+            'area': this.dataManager.attributes.area_types,
+            'damage': this.dataManager.attributes.damage_types,
+            'condition': this.dataManager.attributes.conditions
+        };
+
+        for (const [dropdownId, values] of Object.entries(dropdownMappings)) {
+            const select = document.getElementById(dropdownId);
+            select.innerHTML = '';
+            
+            values.forEach(value => {
+                const option = document.createElement('option');
+                option.value = value.toLowerCase();
+                option.textContent = value;
+                select.appendChild(option);
+            });
+        }
+
+        // Set default values
+        this.setDefaultValues();
+    }
+
+    setDefaultValues() {
+        document.getElementById('level').value = 'none';
+        document.getElementById('school').value = 'none';
+        document.getElementById('duration').value = 'instantaneous';
+        document.getElementById('range').value = 'none';
+        document.getElementById('area').value = 'none';
+        document.getElementById('damage').value = 'none';
+        document.getElementById('condition').value = 'none';
+        document.getElementById('concentration').checked = false;
+        document.getElementById('ritual').checked = false;
+        document.getElementById('shape').value = 'polygon';
+        document.getElementById('lineType').value = 'straight';
     }
 
     setupEventListeners() {
         document.getElementById('generateBtn').addEventListener('click', () => this.generateGlyph());
         document.getElementById('randomBtn').addEventListener('click', () => this.generateRandomGlyph());
+        
+        // Add change listeners to all dropdowns for real-time updates
+        const dropdowns = ['level', 'school', 'duration', 'range', 'area', 'damage', 'condition', 'shape', 'lineType'];
+        dropdowns.forEach(id => {
+            document.getElementById(id).addEventListener('change', () => this.generateGlyph());
+        });
+
+        // Add change listeners to checkboxes
+        document.getElementById('concentration').addEventListener('change', () => this.generateGlyph());
+        document.getElementById('ritual').addEventListener('change', () => this.generateGlyph());
     }
 
     getFormValues() {
