@@ -4,13 +4,6 @@ class DataManager {
         this.spells = null;
     }
 
-    async initialize() {
-        await Promise.all([
-            this.loadAttributes(),
-            this.loadSpells()
-        ]);
-    }
-
     async loadAttributes() {
         try {
             const response = await fetch('data/attributes.json');
@@ -39,6 +32,23 @@ class DataManager {
         }
     }
 
+    getAttributeIndex(attribute, value) {
+        const list = this.attributes[attribute];
+        return list.findIndex(item => item.toLowerCase() === value.toLowerCase());
+    }
+
+    getAttributeIndices(params) {
+        return [
+            this.getAttributeIndex('levels', params.level),
+            this.getAttributeIndex('school', params.school),
+            this.getAttributeIndex('duration', params.duration),
+            this.getAttributeIndex('range', params.range),
+            this.getAttributeIndex('area_types', params.area),
+            this.getAttributeIndex('damage_types', params.damage),
+            this.getAttributeIndex('conditions', params.condition)
+        ];
+    }
+
     findMatchingSpell(params) {
         const level = params.level === 'none' ? 'cantrips' : params.level;
         const spellList = this.spells[level] || [];
@@ -59,10 +69,10 @@ class DataManager {
     getRandomAttributes() {
         const randomChoice = arr => arr[Math.floor(Math.random() * arr.length)];
         
-        // Prevent invalid combinations
-        const shape = randomChoice(['polygon', 'quadratic', 'circle', 'cubic', 'golden']);
+        let shape = randomChoice(['polygon', 'quadratic', 'circle', 'cubic', 'golden']);
         let lineType = randomChoice(['straight', 'centreCircle']);
         
+        // Prevent invalid combinations
         if (lineType === 'straight' && (shape === 'quadratic' || shape === 'cubic')) {
             shape = 'polygon';
         }
