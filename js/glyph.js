@@ -169,72 +169,37 @@ class GlyphEngine {
         this.ctx.setLineDash([]);
     }
 
-    drawGlyph(params) {
+    drawGlyph(params, attributeIndices) {
         this.clearCanvas();
         
-        // Get base points based on shape type
-        let basePoints;
-        const n = 7; // Number of points
+        // Get base points
+        const n = 7; // Number of points for the base shape
+        const basePoints = this.getBasePoints(params.shape, n);
         
-        switch (params.shape) {
-            case 'polygon':
-                basePoints = this.polygon(n);
-                break;
-            case 'quadratic':
-                basePoints = this.quadratic(n);
-                break;
-            case 'circle':
-                basePoints = this.circle(n);
-                break;
-            case 'cubic':
-                basePoints = this.cubic(n);
-                break;
-            case 'golden':
-                basePoints = this.golden(n);
-                break;
-            default:
-                basePoints = this.polygon(n);
-        }
-
-        // Get binary patterns
-        const N = 15; // 2 * 7 + 1 attributes
+        // Get binary patterns for all attributes (2n + 1 patterns needed)
+        const N = 2 * attributeIndices.length + 1;
         const patterns = this.getBinaryPattern(N);
-        const selectedPatterns = patterns.slice(0, 7); // Take first 7 patterns
-
+        
+        // Map attribute indices to patterns
+        const inputArray = attributeIndices.map(index => patterns[index]);
+        
         // Draw base points
-        basePoints.forEach((point, i) => {
-            if (i === 0) {
-                this.ctx.fillStyle = '#000';
-            } else {
-                this.ctx.fillStyle = 'none';
-                this.ctx.strokeStyle = '#000';
-            }
-            this.ctx.beginPath();
-            this.ctx.arc(point.x, point.y, 3, 0, 2 * Math.PI);
-            if (i === 0) {
-                this.ctx.fill();
-            } else {
-                this.ctx.stroke();
-            }
-        });
-
-        // Draw patterns
-        selectedPatterns.forEach((pattern, i) => {
+        this.drawBasePoints(basePoints);
+        
+        // Draw patterns with increasing k values
+        inputArray.forEach((pattern, i) => {
             this.drawShape(
                 basePoints,
                 pattern,
                 i + 1,
-                params.lineType === 'centreCircle' ? 'centre' : 'straight'
+                params.lineType,
+                params.concentration || params.ritual ? this.getColorForIndex(i, inputArray.length) : '#333'
             );
         });
 
-        // Add markers
-        if (params.ritual) {
-            this.drawRitualMarker();
-        }
-        if (params.concentration) {
-            this.drawConcentrationMarker();
-        }
+        // Add ritual and concentration markers last
+        if (params.ritual) this.drawRitualMarker();
+        if (params.concentration) this.drawConcentrationMarker();
     }
 
     drawRitualMarker() {
