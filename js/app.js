@@ -6,14 +6,16 @@ class GlyphForgeApp {
 
     async initialize() {
         try {
-            // Load data first
+            // First load the attributes
             await this.dataManager.loadAttributes();
-            await this.dataManager.loadSpells();
             
-            // Populate dropdowns
+            // Then populate dropdowns
             this.populateDropdowns();
             
-            // Setup event listeners
+            // Then load spells
+            await this.dataManager.loadSpells();
+            
+            // Finally setup event listeners
             this.setupEventListeners();
         } catch (error) {
             console.error('Initialization error:', error);

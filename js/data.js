@@ -16,6 +16,7 @@ class DataManager {
             const response = await fetch('data/attributes.json');
             if (!response.ok) throw new Error('Failed to load attributes');
             this.attributes = await response.json();
+            return this.attributes;
         } catch (error) {
             console.error('Error loading attributes:', error);
             throw error;
