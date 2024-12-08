@@ -1,15 +1,19 @@
 const API_URL = 'https://l84cd0mebi.execute-api.us-east-2.amazonaws.com/prod';
 
 async function populateDropdowns() {
+    console.log('Fetching from:', `${API_URL}/api/attributes`);
     const response = await fetch(`${API_URL}/api/attributes`);
     const data = await response.json();
+    console.log('Received data:', data);
     
     Object.keys(data).forEach(key => {
         const select = document.getElementById(key);
+        console.log('Looking for element with ID:', key);
         if (select) {
             select.innerHTML = data[key]
                 .map(option => `<option value="${option}">${option}</option>`)
                 .join('');
+            console.log('Populated dropdown:', key);
         }
     });
 }
