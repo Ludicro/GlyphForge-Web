@@ -2,7 +2,7 @@
     "name": "glyphforge-web",
     "version": "1.0.0",
     "private": true,
-    "homepage": "https://[your-github-username].github.io/GlyphForge-Web",
+    "homepage": "https://Ludicro.github.io/GlyphForge-Web",
     "dependencies": {
       "react": "^18.2.0",
       "react-dom": "^18.2.0",
