@@ -30,8 +30,6 @@ async function generateGlyph() {
         ritual: document.getElementById('ritual').value === 'true'
     };
 
-    console.log('Sending request with data:', formData);
-    
     const response = await fetch(`${API_URL}/api/generate-glyph`, {
         method: 'POST',
         headers: {
@@ -45,11 +43,12 @@ async function generateGlyph() {
     });
 
     const data = await response.json();
-    console.log('Received response:', data);
+    const imageData = JSON.parse(data.body);
     
     const glyphDisplay = document.getElementById('glyphDisplay');
-    glyphDisplay.innerHTML = `<img src="data:image/png;base64,${data.image}" alt="Generated Glyph">`;
+    glyphDisplay.innerHTML = `<img src="data:image/png;base64,${imageData.image}" alt="Generated Glyph">`;
 }
+
 
 
 document.addEventListener('DOMContentLoaded', populateDropdowns);
