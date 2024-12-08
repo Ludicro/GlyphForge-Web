@@ -1,5 +1,23 @@
 const API_URL = 'https://l84cd0mebi.execute-api.us-east-2.amazonaws.com/prod';
 
+async function populateDropdowns() {
+    const response = await fetch(`${API_URL}/api/attributes`);
+    const data = await response.json();
+    
+    // Populate each dropdown with its corresponding attributes
+    Object.keys(data).forEach(key => {
+        const select = document.getElementById(key.replace('_types', ''));
+        if (select) {
+            select.innerHTML = data[key]
+                .map(option => `<option value="${option}">${option}</option>`)
+                .join('');
+        }
+    });
+}
+
+// Call this when the page loads
+document.addEventListener('DOMContentLoaded', populateDropdowns);
+
 async function loadAttributes() {
     const response = await fetch(`${API_URL}/api/attributes`);
     const data = await response.json();
