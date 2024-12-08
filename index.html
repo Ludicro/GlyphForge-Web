@@ -12,10 +12,70 @@
             <h1>GlyphForge</h1>
             <p>Generate magical glyphs for your spells</p>
         </header>
-        <main id="glyphGenerator">
+        <main>
             <div class="form-grid">
-                <!-- Form will be populated by JavaScript -->
+                <div class="form-group">
+                    <label>Level:</label>
+                    <select id="levels"></select>
+                </div>
+                <div class="form-group">
+                    <label>School:</label>
+                    <select id="school"></select>
+                </div>
+                <div class="form-group">
+                    <label>Duration:</label>
+                    <select id="duration"></select>
+                </div>
+                <div class="form-group">
+                    <label>Range:</label>
+                    <select id="range"></select>
+                </div>
+                <div class="form-group">
+                    <label>Area Type:</label>
+                    <select id="area_types"></select>
+                </div>
+                <div class="form-group">
+                    <label>Damage Type:</label>
+                    <select id="damage_types"></select>
+                </div>
+                <div class="form-group">
+                    <label>Condition:</label>
+                    <select id="conditions"></select>
+                </div>
+                <div class="form-group">
+                    <label>Shape:</label>
+                    <select id="shape">
+                        <option value="polygon">Polygon</option>
+                        <option value="quadratic">Quadratic</option>
+                        <option value="circle">Circle</option>
+                        <option value="cubic">Cubic</option>
+                        <option value="golden">Golden</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Line Type:</label>
+                    <select id="lineType">
+                        <option value="straight">Straight</option>
+                        <option value="centreCircle">Centre Circle</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Concentration:</label>
+                    <select id="concentration">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ritual:</label>
+                    <select id="ritual">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
             </div>
+            <button onclick="generateGlyph()">Generate Glyph</button>
+            <div id="glyphDisplay"></div>
         </main>
         <footer>
             <p>Powered by AWS Lambda</p>
