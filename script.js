@@ -1,4 +1,4 @@
-const API_URL = 'https://l84cd0mebi.execute-api.us-east-2.amazonaws.com/prod';
+const API_URL = env.API_URL;
 
 async function populateDropdowns() {
     const response = await fetch(`${API_URL}/api/attributes`);
